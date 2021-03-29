@@ -25,7 +25,7 @@
         <jwt.version>0.7.0</jwt.version>
         <gson.version>2.6.2</gson.version>
         <jdbc-mysql.version>8.0.11</jdbc-mysql.version>
-        <mybatis-plus.version>3.2.0</mybatis-plus.version>
+        <mybatis-plus.version>3.4.2</mybatis-plus.version>
         <druid.version>1.1.21</druid.version>
         <jedis.version>3.0.1</jedis.version>
         <redisson.version>3.15.0</redisson.version>

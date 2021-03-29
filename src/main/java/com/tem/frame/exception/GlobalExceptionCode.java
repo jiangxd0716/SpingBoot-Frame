@@ -11,6 +11,7 @@ public enum GlobalExceptionCode {
      */
     SUCCESS(0, "SUCCESS"),
     ERROR(1, "系统异常"),
+    NOT_FOUND(404, "404找不到资源"),
     REQUEST_ARGUMENT_EXCEPTION(2, "请求参数异常"),
     USER_LOGIN_STATUS_EXCEPTION(3, "当前用户登陆信息未进行初始化"),
     NOT_FOUND_ENUM(4, "未找到对应枚举类型"),

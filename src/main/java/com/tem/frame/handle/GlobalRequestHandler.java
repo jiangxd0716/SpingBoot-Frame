@@ -68,7 +68,8 @@ public class GlobalRequestHandler implements HandlerInterceptor {
         }
 
         // 若存在非法请求，则记录这次非法请求
-        log.error("ILLEGAL REQUEST:[{}:{}]", request.getMethod(), request.getRequestURI());
+        // 不记录没意义
+        // log.error("ILLEGAL REQUEST:[{}:{}]", request.getMethod(), request.getRequestURI());
 
         // 其它情况, 如不存在 token 或 token 解析异常的均提示未授权
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -88,7 +89,6 @@ public class GlobalRequestHandler implements HandlerInterceptor {
      */
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) throws Exception {
-
         // 请求结束，记录相应日志
         log.info("RESPONSE:[{}:{}][{}:{}]", request.getMethod(), request.getRequestURI(), CurrentUser.getId(), CurrentUser.getUsername());
         //当前请求结束需要销毁线程中存储的内容，否则线程池的作用会导致这些缓存的数据无法被虚拟机销毁

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
@@ -109,6 +110,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public GlobalResponseWrapper defaultExceptionHandler(HttpServletRequest request, Exception exception) throws Exception {
+
+        // 404错误
+        if (exception instanceof NoHandlerFoundException) {
+            return new GlobalResponseWrapper(GlobalExceptionCode.NOT_FOUND);
+        }
 
         // 记录异常信息
         log.error("UNKNOWN EXCEPTION:{}", this.getExceptionContent(exception));
