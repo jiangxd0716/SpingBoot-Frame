@@ -1,4 +1,4 @@
-package com.tem.frame.redis;
+package com.tem.frame.constants;
 
 /**
  * 全局的 Redis Key 的前缀或者全名必须维护到该类中
@@ -13,7 +13,6 @@ public class RedisKey {
      * arg2: 电话号码
      */
     public static final String LOCK_SMS_CAPTCHA = "LOCK-SMS-CAPTCHA-%s-%s";
-
 
     /**
      * 短信验证码发送标识

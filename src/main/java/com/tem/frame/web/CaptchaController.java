@@ -22,9 +22,9 @@ import javax.validation.constraints.NotNull;
 @RequestMapping("/captcha")
 public class CaptchaController {
 
-
     @Autowired
     private CaptchaService captchaService;
+
 
     /**
      * 发送短信验证码

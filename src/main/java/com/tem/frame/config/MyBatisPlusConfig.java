@@ -19,7 +19,6 @@ public class MyBatisPlusConfig {
     /**
      * 注册乐观锁和分页插件(新版: 3.4.0)
      * 新的分页插件,一缓和二缓遵循mybatis的规则
-     * 需要设置 MybatisConfiguration#useDeprecatedExecutor = false 避免缓存出现问题(该属性会在旧插件移除后一同移除)
      */
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
@@ -32,6 +31,9 @@ public class MyBatisPlusConfig {
         return interceptor;
     }
 
+    /**
+     * 需要设置 MybatisConfiguration#useDeprecatedExecutor = false 避免缓存出现问题(该属性会在旧插件移除后一同移除)
+     */
     @Bean
     public ConfigurationCustomizer configurationCustomizer() {
         return configuration -> configuration.setUseDeprecatedExecutor(false);

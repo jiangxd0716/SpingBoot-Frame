@@ -15,6 +15,7 @@ public class GsonUtil {
      */
     public static final Gson gson = new Gson();
 
+
     /**
      * 将一个对象转换为JSON字符串，使用缺省时间格式
      *

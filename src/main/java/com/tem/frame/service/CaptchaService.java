@@ -4,7 +4,8 @@ import cn.hutool.core.util.RandomUtil;
 import com.tem.frame.enums.MessageType;
 import com.tem.frame.exception.GlobalExceptionCode;
 import com.tem.frame.redis.JedisClient;
-import com.tem.frame.redis.RedisKey;
+import com.tem.frame.constants.RedisKey;
+import com.tem.frame.utils.AliyunUtil;
 import com.tem.frame.wrapper.GlobalResponseWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +19,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class CaptchaService {
 
-
     @Autowired
     private JedisClient jedisClient;
 
     @Autowired
-    private AliyunService aliyunService;
+    private AliyunUtil aliyunUtil;
 
     /**
      * 短信发送时间间隔
@@ -36,6 +36,7 @@ public class CaptchaService {
      */
     @Value("${captcha.expiration}")
     private Integer captchaExpiration;
+
 
     /**
      * 短信验证码发送
@@ -56,7 +57,7 @@ public class CaptchaService {
         String captcha = RandomUtil.randomNumbers(6);
 
         //若短信发送失败则直接反馈
-        boolean isSend = this.aliyunService.sendMessage(phoneNumber, messageType, String.format(messageType.getTemplateParams(), captcha));
+        boolean isSend = this.aliyunUtil.sendMessage(phoneNumber, messageType, String.format(messageType.getTemplateParams(), captcha));
         if (!isSend) {
             return new GlobalResponseWrapper(GlobalExceptionCode.MESSAGE_SEND_ERROR);
         }

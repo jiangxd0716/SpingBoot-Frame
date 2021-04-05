@@ -1,4 +1,4 @@
-package com.tem.frame.service;
+package com.tem.frame.utils;
 
 import com.aliyuncs.CommonRequest;
 import com.aliyuncs.CommonResponse;
@@ -10,18 +10,14 @@ import com.aliyuncs.profile.DefaultProfile;
 import com.tem.frame.enums.MessageType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 
 /**
  * 阿里云发送短信服务
  */
 @Slf4j
-@Service
-public class AliyunService {
-
-
-    //=================== 阿里云短信发送 SDK 参数 ==============================
+@Component
+public class AliyunUtil {
 
     @Value("${aliyuncs.profile.region-id}")
     private String regionId;
@@ -56,6 +52,7 @@ public class AliyunService {
     @Value("${sun.net.client.defaultReadTimeout}")
     private String readTimeout;
 
+
     /**
      * 短信发送
      *
@@ -64,7 +61,6 @@ public class AliyunService {
      * @param messageParam
      * @return
      */
-    @Transactional
     public boolean sendMessage(String phoneNumber, MessageType messageType, String messageParam) {
 
         try {
@@ -87,8 +83,6 @@ public class AliyunService {
             request.putQueryParameter("TemplateParam", messageParam);
             CommonResponse response = client.getCommonResponse(request);
             if (response != null && response.getHttpStatus() == 200) {//验证码发送成功
-                //记录短信发送记录
-//                this.messageLogService.addLog(phoneNumber, messageType, messageParam);
                 return Boolean.TRUE;
             }
 
@@ -99,6 +93,5 @@ public class AliyunService {
         log.info("发送失败");
         return Boolean.FALSE;
     }
-
 
 }

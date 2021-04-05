@@ -1,4 +1,4 @@
-package com.tem.frame.redis;
+package com.tem.frame.config;
 
 import com.tem.frame.exception.GlobalException;
 import com.tem.frame.exception.GlobalExceptionCode;

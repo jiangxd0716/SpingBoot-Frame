@@ -44,7 +44,6 @@ public class GlobalException extends RuntimeException {
         this.code = code;
     }
 
-
     public GlobalExceptionCode getCode() {
         return code;
     }

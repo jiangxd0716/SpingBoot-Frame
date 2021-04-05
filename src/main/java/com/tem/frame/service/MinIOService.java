@@ -2,7 +2,6 @@ package com.tem.frame.service;
 
 import com.tem.frame.pojo.vo.FileVo;
 import io.minio.MinioClient;
-import io.minio.ObjectWriteResponse;
 import io.minio.PutObjectArgs;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,22 +17,14 @@ import java.util.UUID;
 @Service
 public class MinIOService {
 
-    @Value("${minio.endpoint}")
-    private String endpoint;
-
     @Value("${minio.domain}")
     private String domainUrl;
-
-    @Value("${minio.username}")
-    private String username;
-
-    @Value("${minio.password}")
-    private String password;
 
     @Value("${minio.bucket-name}")
     private String bucketName;
 
     private MinioClient minioClient;
+
 
     public MinIOService(@Value("${minio.endpoint}") String endpoint,
                         @Value("${minio.username}") String username,
@@ -51,7 +42,6 @@ public class MinIOService {
     public FileVo upload(MultipartFile file) {
 
         //文件服务器地址
-//        String domain = String.format("%s/%s", this.endpoint, this.bucketName);
         String domainUrl = String.format("%s/%s", this.domainUrl, this.bucketName);
         //生成一个新的 uuid
         String uuid = UUID.randomUUID().toString();
@@ -73,7 +63,7 @@ public class MinIOService {
         vo.setPath(fileName);
 
         try {
-            ObjectWriteResponse response = minioClient.putObject(PutObjectArgs.builder().bucket(this.bucketName)
+            minioClient.putObject(PutObjectArgs.builder().bucket(this.bucketName)
                     .object(fileName)
                     .stream(file.getInputStream(), file.getInputStream().available(), -1)
                     .build());
@@ -110,4 +100,5 @@ public class MinIOService {
         }
         return bytes;
     }
+
 }

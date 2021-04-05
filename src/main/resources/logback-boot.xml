@@ -9,6 +9,12 @@
 <!--debug: 当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。-->
 <configuration scan="false" scanPeriod="60 seconds" debug="false">
 
+    <!-- 从配置文件中读取数据库配置 -->
+    <springProperty scope="context" name="db_drive_class_name" source="spring.datasource.druid.driver-class-name"/>
+    <springProperty scope="context" name="db_url" source="spring.datasource.druid.url"/>
+    <springProperty scope="context" name="db_username" source="spring.datasource.druid.username"/>
+    <springProperty scope="context" name="db_password" source="spring.datasource.druid.password"/>
+
     <!-- 输出到控制台的配置-->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -27,10 +33,10 @@
     <appender name="DB-MYSQL" class="com.tem.frame.log.LogBackDBAppender">
         <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
             <dataSource class="com.alibaba.druid.pool.DruidDataSource">
-                <driverClassName>com.mysql.cj.jdbc.Driver</driverClassName>
-                <url>jdbc:mysql://192.168.8.104:3306/frame?useUnicode=true&amp;characterEncoding=utf8&amp;createDatabaseIfNotExist=true&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai&amp;allowPublicKeyRetrieval=true</url>
-                <username>root</username>
-                <password>mingbyte@123</password>
+                <driverClassName>${db_drive_class_name}</driverClassName>
+                <url>${db_url}</url>
+                <username>${db_username}</username>
+                <password>${db_password}</password>
             </dataSource>
         </connectionSource>
         <!-- 接受 INFO 及以上级别的日志存储到数据库 -->
@@ -44,8 +50,8 @@
     <!-- level属性控制name属性定义的包路径下的日志级别，打印包含该级别及以上的全部日志 -->
     <!-- 日志级别由高到低依次为：FATAL > ERROR > WARN > INFO > DEBUG > TRACE -->
     <!-- additivity,设置为true时，该logger将会向上传递，此处这样设置，将会在控制台中输入相关的信息。 -->
-    <!-- 此处要求 com.galaxyt 包下的 DEBUG 及以上级别的日志都给到控制台和数据库, 数据库会对级别再进行过滤 -->
-    <logger name="com.tem" level="DEBUG" additivity="false">
+    <!-- 此处要求 com.tem 包下的 DEBUG 及以上级别的日志都给到控制台和数据库, 数据库会对级别再进行过滤 -->
+    <logger name="com.tem" level="DEBUG" additivity="true">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="DB-MYSQL"/>
     </logger>

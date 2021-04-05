@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class CurrentUser {
 
-
     /**
      * 当前线程是否进行过初始化
      */
@@ -26,6 +25,7 @@ public class CurrentUser {
      * 记录当前线程操作用户用户名
      */
     private static final ThreadLocal<String> USERNAME = new ThreadLocal<>();
+
 
     /**
      * 初始化数据
@@ -66,7 +66,6 @@ public class CurrentUser {
         USERNAME.remove();
     }
 
-
     /**
      * 获取当前登陆用户主键 ID
      *
@@ -86,6 +85,5 @@ public class CurrentUser {
         isInit();
         return USERNAME.get();
     }
-
 
 }

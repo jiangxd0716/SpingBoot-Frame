@@ -36,6 +36,7 @@ public enum GlobalExceptionCode {
 
     USER_NOT_FOUNT(5001, "用户不存在"),
     USER_PASSWORD_ERROR(5002, "用户密码错误"),
+    USER_EXIST(5003, "用户名已存在"),
     ;
 
     /**

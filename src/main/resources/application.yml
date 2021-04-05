@@ -18,7 +18,7 @@ mybatis-plus:
 
 #=========================== 日志配置 ===============================
 logging:
-  config: classpath:logback-boot-@profileActive@.xml
+  config: classpath:logback-boot.xml
 
 #jwt
 jwt:

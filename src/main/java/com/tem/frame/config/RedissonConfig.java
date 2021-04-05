@@ -1,4 +1,4 @@
-package com.tem.frame.redis;
+package com.tem.frame.config;
 
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;

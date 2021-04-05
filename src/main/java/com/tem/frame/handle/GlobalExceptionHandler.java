@@ -110,7 +110,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public GlobalResponseWrapper defaultExceptionHandler(HttpServletRequest request, Exception exception) throws Exception {
-
         // 404错误
         if (exception instanceof NoHandlerFoundException) {
             return new GlobalResponseWrapper(GlobalExceptionCode.NOT_FOUND);
