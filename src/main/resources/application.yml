@@ -16,10 +16,6 @@ mybatis-plus:
       logic-delete-value: 1
       logic-not-delete-value: 0
 
-#=========================== 日志配置 ===============================
-logging:
-  config: classpath:logback-boot.xml
-
 #jwt
 jwt:
   key: Authorization

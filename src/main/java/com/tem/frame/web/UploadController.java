@@ -1,9 +1,10 @@
 package com.tem.frame.web;
 
-import com.tem.frame.exception.GlobalExceptionCode;
+import com.tem.frame.common.exception.GlobalExceptionCode;
+import com.tem.frame.common.wrapper.Authority;
 import com.tem.frame.pojo.vo.FileVo;
 import com.tem.frame.service.MinIOService;
-import com.tem.frame.wrapper.GlobalResponseWrapper;
+import com.tem.frame.common.wrapper.GlobalResponseWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,8 @@ public class UploadController {
      * @param file
      * @return
      */
-    @PostMapping
+    @PostMapping("{id}")
+    @Authority(name = "文件上传", mark = "file:upload")
     public GlobalResponseWrapper upload(@RequestPart("file") MultipartFile file) {
 
         FileVo fileVo = this.minIOService.upload(file);

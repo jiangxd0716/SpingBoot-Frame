@@ -17,7 +17,7 @@ import java.util.UUID;
 @Service
 public class MinIOService {
 
-    @Value("${minio.domain}")
+    @Value("${minio.endpoint}")
     private String domainUrl;
 
     @Value("${minio.bucket-name}")

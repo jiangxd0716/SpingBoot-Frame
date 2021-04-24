@@ -3,8 +3,8 @@ package com.tem.frame.enums;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.tem.frame.exception.GlobalException;
-import com.tem.frame.exception.GlobalExceptionCode;
+import com.tem.frame.common.exception.GlobalException;
+import com.tem.frame.common.exception.GlobalExceptionCode;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -14,11 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum MessageType {
 
-
     LOGIN(1, "登录", "SMS_169960246", "{'code':'%s'}"),
     REGISTER(2, "注册", "SMS_169960246", "{'code':'%s'}"),
     RESET(3, "重置", "SMS_169960246", "{'code':'%s'}"),
     ;
+
 
     /**
      * 代码

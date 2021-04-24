@@ -1,11 +1,11 @@
 package com.tem.frame.web;
 
 import com.tem.frame.enums.MessageType;
-import com.tem.frame.exception.GlobalException;
-import com.tem.frame.exception.GlobalExceptionCode;
+import com.tem.frame.common.exception.GlobalException;
+import com.tem.frame.common.exception.GlobalExceptionCode;
 import com.tem.frame.service.CaptchaService;
-import com.tem.frame.utils.RegexUtil;
-import com.tem.frame.wrapper.GlobalResponseWrapper;
+import com.tem.frame.common.utils.RegexUtil;
+import com.tem.frame.common.wrapper.GlobalResponseWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +32,7 @@ public class CaptchaController {
      * @param captchaType 短信类型 1登录 2注册 3重置
      * @param phoneNumber 手机号码
      */
-    @GetMapping()
+    @GetMapping("")
     public GlobalResponseWrapper send(@NotBlank(message = "手机号码不能为空") @RequestParam("phoneNumber") String phoneNumber,
                                       @NotNull(message = "短信类型不能为空") @RequestParam("captchaType") Integer captchaType) {
 

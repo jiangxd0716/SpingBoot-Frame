@@ -2,11 +2,11 @@ package com.tem.frame.service;
 
 import cn.hutool.core.util.RandomUtil;
 import com.tem.frame.enums.MessageType;
-import com.tem.frame.exception.GlobalExceptionCode;
-import com.tem.frame.redis.JedisClient;
-import com.tem.frame.constants.RedisKey;
-import com.tem.frame.utils.AliyunUtil;
-import com.tem.frame.wrapper.GlobalResponseWrapper;
+import com.tem.frame.common.exception.GlobalExceptionCode;
+import com.tem.frame.common.redis.JedisClient;
+import com.tem.frame.common.constants.RedisKey;
+import com.tem.frame.common.utils.AliyunUtil;
+import com.tem.frame.common.wrapper.GlobalResponseWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
