@@ -10,7 +10,6 @@ public enum GlobalExceptionCode {
      */
     SUCCESS(0, "SUCCESS"),
     ERROR(1, "系统异常"),
-    NOT_FOUND(404, "404找不到资源"),
     REQUEST_ARGUMENT_EXCEPTION(2, "请求参数异常"),
     USER_LOGIN_STATUS_EXCEPTION(3, "当前用户登陆信息未进行初始化"),
     NOT_FOUND_ENUM(4, "未找到对应枚举类型"),
@@ -20,6 +19,11 @@ public enum GlobalExceptionCode {
     FILE_UPLOAD_ERROR(8, "文件上传失败"),
     DATA_IS_NULL(9, "数据是空的"),
     NECESSARY_DATA_IS_NULL(10, "某些必填数据为空"),
+
+    NOT_FOUND(404, "404找不到资源"),
+    ILLEGAL_REQUEST(402, "非法请求"),
+    SIGN_FAILED(403, "签名校验失败"),
+    REPEAT_REQUEST(405, "重复请求"),
 
     PHONE_NUMBER_FORMAT_WRONG(1001, "手机号码格式错误"),
 

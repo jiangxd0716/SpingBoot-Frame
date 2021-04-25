@@ -1,5 +1,6 @@
 package com.tem.frame.common.handle;
 
+import com.tem.frame.common.constants.Constants;
 import com.tem.frame.common.exception.GlobalExceptionCode;
 import com.tem.frame.common.wrapper.GlobalResponseWrapper;
 import com.tem.frame.common.wrapper.NotWrapper;
@@ -68,7 +69,7 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
         若返回值类型为 void 则默认为成功
          */
         final String returnTypeName = methodParameter.getParameterType().getName();  //这里是接收到的返回值的类型
-        if ("void".equals(returnTypeName)) {
+        if (Constants.VOID_RETURN.equals(returnTypeName)) {
             return new GlobalResponseWrapper();
         }
 
@@ -77,9 +78,9 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
         否则会出现类型转换异常
         接口不能直接返回字符串类型，否则默认的转换器无法进行解析并报错，若必须返回单个字符串，需要使用 new GlobalResponseWrapper().data(""); , 在前面的判断会直接将包装器返回
          */
-        if (!mediaType.includes(MediaType.APPLICATION_JSON)) {
-            return o;
-        }
+//        if (!mediaType.includes(MediaType.APPLICATION_JSON)) {
+//            return o;
+//        }
 
         if (GlobalExceptionCode.class.getName().equals(returnTypeName)) {
             return new GlobalResponseWrapper((GlobalExceptionCode) o);

@@ -1,11 +1,11 @@
 package com.tem.frame.common.wrapper;
 
-import com.tem.frame.dao.RoleDao;
-import com.tem.frame.dao.UserDao;
-import com.tem.frame.dao.UserRoleDao;
-import com.tem.frame.pojo.po.Role;
-import com.tem.frame.pojo.po.User;
-import com.tem.frame.pojo.po.UserRole;
+import com.tem.frame.system.dao.RoleDao;
+import com.tem.frame.system.dao.UserDao;
+import com.tem.frame.system.dao.UserRoleDao;
+import com.tem.frame.system.pojo.po.Role;
+import com.tem.frame.system.pojo.po.User;
+import com.tem.frame.system.pojo.po.UserRole;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;

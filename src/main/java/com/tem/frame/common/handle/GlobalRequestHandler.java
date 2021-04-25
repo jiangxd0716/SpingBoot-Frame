@@ -2,10 +2,18 @@ package com.tem.frame.common.handle;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.toolkit.StringPool;
+import com.tem.frame.common.constants.Constants;
+import com.tem.frame.common.exception.GlobalException;
+import com.tem.frame.common.exception.GlobalExceptionCode;
+import com.tem.frame.common.redis.JedisClient;
 import com.tem.frame.common.thread.CurrentUser;
+import com.tem.frame.common.utils.GsonUtil;
 import com.tem.frame.common.utils.JWTUtil;
+import com.tem.frame.common.utils.SignUtil;
 import com.tem.frame.common.wrapper.Authority;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -14,8 +22,14 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.annotation.Nullable;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 全局请求拦截器
@@ -41,6 +55,30 @@ public class GlobalRequestHandler implements HandlerInterceptor {
      */
     @Value("${api.authority}")
     private boolean isAuthority;
+
+    /**
+     * 是否启用接口签名校验
+     */
+    @Value("${api.sign}")
+    private boolean sign;
+
+    /**
+     * 时间戳有效期
+     */
+    @Value("${api.tstimeout}")
+    private int tstimeout;
+
+    /**
+     * 签名有效期
+     */
+    @Value("${api.signtimeout}")
+    private int signtimeout;
+
+    /**
+     * jedis
+     */
+    @Autowired
+    private JedisClient jedisClient;
 
 
     /**
@@ -83,6 +121,11 @@ public class GlobalRequestHandler implements HandlerInterceptor {
                     }
                 }
 
+                // 请求签名校验
+                if (sign) {
+                    this.vaildSign(request);
+                }
+
                 CurrentUser.init(Long.parseLong(jwt.getUserId()), jwt.getUsername());
                 // 若本次请求合法，记录本次请求的各项参数及请求人
                 log.info("REQUEST:[{}:{}][{}:{}]", request.getMethod(), request.getRequestURI(), CurrentUser.getId(), CurrentUser.getUsername());
@@ -123,7 +166,7 @@ public class GlobalRequestHandler implements HandlerInterceptor {
      */
     private boolean authority(String mark, JWTUtil.JWT jwt) {
         // 接口权限标识
-        String[] userAuthoritys = mark.split(",");
+        String[] userAuthoritys = mark.split(StringPool.COMMA);
 
         // 从jwt中取出用户权限标识，判断用户是否有该接口的访问权限
         for (String userAuthority : userAuthoritys) {
@@ -134,6 +177,99 @@ public class GlobalRequestHandler implements HandlerInterceptor {
         }
         // 接口有权限，但是该用户没有权限 返回401未授权
         return Boolean.FALSE;
+    }
+
+    /**
+     * 接口参数签名校验
+     *
+     * @param request
+     */
+    public void vaildSign(HttpServletRequest request) {
+
+        try {
+            // 参数转为key-value
+            Map<String, Object> paramMap = new HashMap<>();
+
+            // get | delete 请求从url中获取参数
+            if (HttpMethod.GET.name().equals(request.getMethod()) || HttpMethod.DELETE.name().equals(request.getMethod())) {
+                // 请求参数
+                String queryString = request.getQueryString();
+                String[] split = queryString.split("&");
+
+                for (String s : split) {
+                    String[] paramSpilt = s.split("=");
+                    paramMap.put(paramSpilt[0], paramSpilt[1]);
+                }
+            }
+
+            // post | put | patch 请求从body中获取参数
+            if (HttpMethod.POST.name().equals(request.getMethod()) || HttpMethod.PUT.name().equals(request.getMethod()) || HttpMethod.PATCH.name().equals(request.getMethod())) {
+                // body参数转为key-value
+                paramMap = this.getParam(request);
+            }
+
+            // 获取客户端时间戳、并校验
+            this.vaildTimetamp(Long.valueOf(String.valueOf(paramMap.get("ts"))));
+
+            // 签名校验
+            String sign = SignUtil.signTopRequest(paramMap, String.valueOf(paramMap.get("salt")));
+            if (!sign.equals(paramMap.get("sign"))) {
+                throw new GlobalException(GlobalExceptionCode.SIGN_FAILED);
+            } else {
+                // 从redis中获取签名
+                String redisSign = this.jedisClient.get(sign);
+                // 若存在，则说明重复请求
+                if (StrUtil.isNotBlank(redisSign)) {
+                    throw new GlobalException(GlobalExceptionCode.REPEAT_REQUEST);
+                } else {
+                    // 不存在，则把签名缓存到redis，且设置过期时间
+                    this.jedisClient.setex(sign, signtimeout, "sign");
+                }
+            }
+
+        } catch (GlobalException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new GlobalException(GlobalExceptionCode.SIGN_FAILED);
+        }
+
+    }
+
+    /**
+     * 校验客户端时间戳是否合法
+     *
+     * @param timetamp 客户端时间戳
+     */
+    public void vaildTimetamp(Long timetamp) {
+        // 服务端时间戳
+        long currentTimeMillis = System.currentTimeMillis();
+        // 服务端时间戳 - 客户端时间戳 》= 5分钟有效期
+        System.out.println(currentTimeMillis - timetamp);
+        System.out.println(timetamp - currentTimeMillis);
+        if (currentTimeMillis - timetamp >= this.tstimeout * 1000 || timetamp - currentTimeMillis >= this.tstimeout * 1000) {
+            throw new GlobalException(GlobalExceptionCode.ILLEGAL_REQUEST);
+        }
+    }
+
+    /**
+     * 从body中获取请求参数
+     *
+     * @param request
+     * @return
+     * @throws ServletException
+     * @throws IOException
+     */
+    public Map<String, Object> getParam(HttpServletRequest request) throws IOException {
+
+        BufferedReader streamReader = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
+        StringBuilder responseStrBuilder = new StringBuilder();
+        String inputStr;
+        while ((inputStr = streamReader.readLine()) != null) {
+            responseStrBuilder.append(inputStr);
+        }
+        Map<String, Object> params = GsonUtil.getObject(responseStrBuilder.toString(), HashMap.class);
+
+        return params;
     }
 
 }

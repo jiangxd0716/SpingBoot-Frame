@@ -11,6 +11,7 @@ spring:
     password:
     port: 6379
     timeout: 5000
+    database: 0
 
 #============================ minio 配置 ==========================================
 minio:
@@ -19,6 +20,13 @@ minio:
   password: minioadmin
   bucket-name: test
 
-#是否开启接口授权
 api:
-  authority: true
+  # 是否开启接口授权
+  authority: false
+  # 是否开启接口签名校验
+  sign: false
+  # 时间戳有效期5分钟
+  tstimeout: 30000
+  # 签名有效期5分钟
+  signtimeout: 30000
+

@@ -20,16 +20,16 @@ import redis.clients.jedis.JedisPoolConfig;
 public class JedisConfig {
 
     @Value("${spring.redis.host}")
-    private String redisHost;
+    private String host;
 
     @Value("${spring.redis.port}")
-    private int redisPort;
+    private int port;
 
     @Value("${spring.redis.password}")
-    private String redisPassword;
+    private String password;
 
     @Value("${spring.redis.timeout}")
-    private int redisTimeout;
+    private int timeout;
 
 
     /**
@@ -42,10 +42,10 @@ public class JedisConfig {
     public JedisPool getJedisPool() {
         try {
             JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
-            if (StrUtil.isBlank(this.redisPassword)) {
-                return new JedisPool(jedisPoolConfig, this.redisHost, this.redisPort, this.redisTimeout);
+            if (StrUtil.isBlank(this.password)) {
+                return new JedisPool(jedisPoolConfig, this.host, this.port, this.timeout);
             } else {
-                return new JedisPool(jedisPoolConfig, this.redisHost, this.redisPort, this.redisTimeout, this.redisPassword);
+                return new JedisPool(jedisPoolConfig, this.host, this.port, this.timeout, this.password);
             }
         } catch (Throwable cause) {
             log.error("Jedis Pool 初始化失败");
