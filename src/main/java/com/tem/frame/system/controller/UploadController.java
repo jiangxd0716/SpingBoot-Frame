@@ -31,7 +31,7 @@ public class UploadController {
      * @param file
      * @return
      */
-    @PostMapping("{id}")
+    @PostMapping("")
     @Authority(name = "文件上传", mark = "file:upload")
     public GlobalResponseWrapper upload(@RequestPart("file") MultipartFile file) {
 

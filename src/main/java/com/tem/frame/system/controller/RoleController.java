@@ -1,6 +1,7 @@
 package com.tem.frame.system.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.tem.frame.common.wrapper.Authority;
 import com.tem.frame.system.pojo.dto.RoleDto;
 import com.tem.frame.system.pojo.vo.RoleVo;
 import com.tem.frame.system.pojo.vo.SelectOption;
@@ -30,6 +31,7 @@ public class RoleController {
      * @return
      */
     @GetMapping("list")
+    @Authority(mark = "role:list", name = "查询全部角色列表")
     public List<SelectOption> list() {
         return this.roleService.list();
     }
@@ -43,6 +45,7 @@ public class RoleController {
      * @return
      */
     @PostMapping("{pageSize}/{pageIndex}")
+    @Authority(mark = "role:list", name = "分页列表查询")
     public Page<RoleVo> list(@PathVariable Integer pageIndex,
                              @PathVariable Integer pageSize,
                              @RequestParam(required = false) String roleName) {
@@ -57,6 +60,7 @@ public class RoleController {
      * @param dto
      */
     @PutMapping("")
+    @Authority(mark = "role:add", name = "角色新增")
     public void add(@Valid @RequestBody RoleDto dto) {
         this.roleService.add(dto);
     }
@@ -67,6 +71,7 @@ public class RoleController {
      * @param dto
      */
     @PatchMapping("{roleId}")
+    @Authority(mark = "role:edit", name = "角色修改")
     public void edit(@Valid @RequestBody RoleDto dto,
                      @PathVariable Long roleId) {
         this.roleService.edit(roleId, dto);
@@ -78,6 +83,7 @@ public class RoleController {
      * @param roleId
      */
     @DeleteMapping("{roleId}")
+    @Authority(mark = "role:del", name = "角色删除")
     public void remove(@PathVariable Long roleId) {
         this.roleService.remove(roleId);
     }
@@ -89,6 +95,7 @@ public class RoleController {
      * @return
      */
     @GetMapping("user/{userId}")
+    @Authority(mark = "role:user:list", name = "查询用户的角色列表")
     public List<String> user(@PathVariable Long userId) {
         return this.roleService.selectUserRole(userId);
     }
@@ -100,6 +107,7 @@ public class RoleController {
      * @param role
      */
     @PatchMapping("user/{userId}")
+    @Authority(mark = "role:user:edit", name = "修改用户角色")
     public void user(@PathVariable Long userId,
                      @RequestBody List<Long> role) {
         this.roleService.updateUserRole(userId, role);

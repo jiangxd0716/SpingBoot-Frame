@@ -1,6 +1,7 @@
 package com.tem.frame.system.controller;
 
 
+import com.tem.frame.common.wrapper.Authority;
 import com.tem.frame.system.pojo.vo.SelectOption;
 import com.tem.frame.system.service.AuthorityService;
 import com.tem.frame.system.service.UserService;
@@ -34,6 +35,7 @@ public class AuthorityController {
      * @return
      */
     @GetMapping("")
+    @Authority(mark = "authority:list", name = "查询全部权限列表")
     public List<SelectOption> list() {
         return this.authorityService.list();
     }
@@ -45,6 +47,7 @@ public class AuthorityController {
      * @return
      */
     @GetMapping("user/{userId}")
+    @Authority(mark = "authority:user:list", name = "查询用户的权限列表")
     public List<Long> user(@PathVariable Long userId) {
         return this.authorityService.selectUserAuthority(userId);
     }
