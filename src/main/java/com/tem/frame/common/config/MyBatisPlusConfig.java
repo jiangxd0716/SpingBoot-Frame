@@ -2,16 +2,18 @@ package com.tem.frame.common.config;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer;
+import com.baomidou.mybatisplus.autoconfigure.MybatisPlusPropertiesCustomizer;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.tem.frame.common.utils.SnowFlake;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
  * MyBatisPlus 通用配置
  *
- * @author Jxd
+ * @author jiangxd
  */
 @Configuration
 public class MyBatisPlusConfig {
@@ -37,6 +39,17 @@ public class MyBatisPlusConfig {
     @Bean
     public ConfigurationCustomizer configurationCustomizer() {
         return configuration -> configuration.setUseDeprecatedExecutor(false);
+    }
+
+    /**
+     * 自定义主键生成策略
+     * 雪花算法
+     *
+     * @return
+     */
+    @Bean
+    public MybatisPlusPropertiesCustomizer plusPropertiesCustomizer() {
+        return plusProperties -> plusProperties.getGlobalConfig().setIdentifierGenerator(new SnowFlake());
     }
 
 }
