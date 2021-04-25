@@ -37,6 +37,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 全局请求拦截器
+ *
+ * @author jiangxd
  */
 @Slf4j
 @Component
@@ -193,14 +195,24 @@ public class GlobalRequestHandler implements HandlerInterceptor {
 
             // 获取客户端时间戳、并校验
             String clientTs = String.valueOf(paramMap.get("ts"));
+            if (StrUtil.isBlank(clientTs)) {
+                throw new GlobalException(GlobalExceptionCode.ILLEGAL_REQUEST, "请传入时间戳ts");
+            }
+
+            // 获取取客户端签名
+            String clientSign = String.valueOf(paramMap.get("sign"));
+            if (StrUtil.isBlank(clientSign)) {
+                throw new GlobalException(GlobalExceptionCode.ILLEGAL_REQUEST, "请传入签名sign");
+            }
+
             this.vaildTimetamp(Long.valueOf(clientTs));
             log.info("时间戳校验通过");
 
-            // 后取客户端签名
-            String clientSign = String.valueOf(paramMap.get("sign"));
-            log.info("客户端签名==》【{}】", clientSign);
             // 签名校验
-            String serverSign = SignUtil.signTopRequest(paramMap, String.valueOf(paramMap.get("salt")));
+            log.info("客户端签名==》【{}】", clientSign);
+
+            // 服务端签名==》参数排序->md5盐加密->转为16进制大写
+            String serverSign = SignUtil.signTopRequest(paramMap, paramMap.get("salt") != null ? String.valueOf(paramMap.get("salt")) : "");
             log.info("服务端签名==》【{}】", serverSign);
             if (!serverSign.equals(clientSign)) {
                 throw new GlobalException(GlobalExceptionCode.SIGN_FAILED);
@@ -208,11 +220,8 @@ public class GlobalRequestHandler implements HandlerInterceptor {
 
                 // setCache 存储签名
                 RSetCache<Object> signSet = this.redissonClient.getSetCache(RedisKey.KEY_API_SIGN);
-                signSet.addListener(
-                        (ExpiredObjectListener) name -> {
-                            signSet.remove(serverSign);
-                        }
-                );
+                // 添加监听事件==》过期则删除
+                signSet.addListener((ExpiredObjectListener) name -> signSet.remove(serverSign));
 
                 // 从redis中获取签名,若存在，则说明重复请求
                 if (signSet.contains(serverSign)) {
@@ -242,7 +251,7 @@ public class GlobalRequestHandler implements HandlerInterceptor {
         // 服务端时间戳 - 客户端时间戳 》= 5分钟有效期
         log.info("服务端时间戳==》【{}】", currentTimeMillis);
         log.info("客户端时间戳==》【{}】", timetamp);
-        log.info("时间差值==》【{}】", (currentTimeMillis - timetamp) / 1000 + "s");
+        log.info("时间差值==》【{}】s", (currentTimeMillis - timetamp) / 1000);
         if (currentTimeMillis - timetamp >= this.tstimeout || timetamp - currentTimeMillis >= this.tstimeout) {
             throw new GlobalException(GlobalExceptionCode.ILLEGAL_REQUEST);
         }

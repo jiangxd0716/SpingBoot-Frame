@@ -54,10 +54,9 @@ public class SignUtil {
         // 第三步：使用MD5加密
         byte[] bytes;
         strtemp = strtemp + salt;
-        log.debug("请求参数==》" + strtemp);
+        log.info("请求参数==》【{}】", strtemp);
         bytes = encryptMD5(strtemp);
         // 第四步：把二进制转化为大写的十六进制
-//      return new String(bytes,"UTF-8");
         return byte2hex(bytes);
     }
 
