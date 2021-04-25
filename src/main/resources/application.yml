@@ -6,7 +6,7 @@ server:
   port: 8080
 
 mybatis-plus:
-  type-enums-package: com.tem.frame.enums.**
+  type-enums-package: com.tem.frame.*.enums.**
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
