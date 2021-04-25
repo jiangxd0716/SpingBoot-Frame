@@ -1,5 +1,6 @@
-package com.tem.frame.common.xss;
+package com.tem.frame.common.filter;
 
+import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +35,7 @@ public class XssFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) {
         log.info("------------ xss filter init ------------");
+
         String isIncludeRichText = filterConfig.getInitParameter("isIncludeRichText");
         if (StringUtils.isNotBlank(isIncludeRichText)) {
             flag = BooleanUtils.toBoolean(isIncludeRichText);
@@ -49,7 +51,7 @@ public class XssFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
 
-        if (handleExcludeURL(req)) {
+        if (isExcludeUrl(req.getServletPath())) {
             chain.doFilter(request, response);
             return;
         }
@@ -61,15 +63,19 @@ public class XssFilter implements Filter {
 
     @Override
     public void destroy() {
-        // do nothing
     }
 
-    private boolean handleExcludeURL(HttpServletRequest request) {
+    /**
+     * 判断是否为忽略的URL
+     *
+     * @param url URL路径
+     * @return true-忽略，false-过滤
+     */
+    private boolean isExcludeUrl(String url) {
         if (excludes == null || excludes.isEmpty()) {
             return false;
         }
-        String url = request.getServletPath();
-        return excludes.stream().map(pattern -> Pattern.compile("^" + pattern)).map(p -> p.matcher(url)).anyMatch(Matcher::find);
+        return excludes.stream().map(pattern -> Pattern.compile(StringPool.HAT + pattern)).map(p -> p.matcher(url))
+                .anyMatch(Matcher::find);
     }
-
 }

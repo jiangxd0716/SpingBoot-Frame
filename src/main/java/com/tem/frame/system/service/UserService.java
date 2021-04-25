@@ -46,7 +46,7 @@ public class UserService {
     /**
      * 是否启用接口授权
      */
-    @Value("${api.authority}")
+    @Value("${security.authority}")
     private boolean isAuthority;
 
 

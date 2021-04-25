@@ -19,14 +19,3 @@ minio:
   username: minioadmin
   password: minioadmin
   bucket-name: test
-
-api:
-  # 是否开启接口授权
-  authority: false
-  # 是否开启接口签名校验
-  sign: true
-  # 时间戳有效期2分钟 (ms)
-  tstimeout: 120000
-  # 签名有效期2分钟 (ms)
-  signtimeout: 120000
-

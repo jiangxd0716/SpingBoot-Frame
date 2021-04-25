@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.tem.frame.common.constants.RedisKey;
 import com.tem.frame.common.exception.GlobalException;
 import com.tem.frame.common.exception.GlobalExceptionCode;
-import com.tem.frame.common.redis.JedisClient;
 import com.tem.frame.common.thread.CurrentUser;
 import com.tem.frame.common.utils.GsonUtil;
 import com.tem.frame.common.utils.JWTUtil;
@@ -58,32 +57,26 @@ public class GlobalRequestHandler implements HandlerInterceptor {
     /**
      * 是否启用接口授权
      */
-    @Value("${api.authority}")
+    @Value("${security.authority}")
     private boolean isAuthority;
 
     /**
      * 是否启用接口签名校验
      */
-    @Value("${api.sign}")
+    @Value("${security.sign}")
     private boolean sign;
 
     /**
      * 时间戳有效期
      */
-    @Value("${api.tstimeout}")
+    @Value("${security.tstimeout}")
     private int tstimeout;
 
     /**
      * 签名有效期
      */
-    @Value("${api.signtimeout}")
+    @Value("${security.signtimeout}")
     private int signtimeout;
-
-    /**
-     * jedis
-     */
-    @Autowired
-    private JedisClient jedisClient;
 
     @Autowired
     private RedissonClient redissonClient;

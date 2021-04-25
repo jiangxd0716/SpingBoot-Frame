@@ -1,4 +1,4 @@
-package com.tem.frame.common.xss;
+package com.tem.frame.common.filter;
 
 import com.tem.frame.common.utils.JsoupUtil;
 import org.apache.commons.lang3.StringUtils;
