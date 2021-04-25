@@ -3,7 +3,7 @@ package com.tem.frame.common.handle;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
-import com.tem.frame.common.constants.Constants;
+import com.tem.frame.common.constants.RedisKey;
 import com.tem.frame.common.exception.GlobalException;
 import com.tem.frame.common.exception.GlobalExceptionCode;
 import com.tem.frame.common.redis.JedisClient;
@@ -13,6 +13,9 @@ import com.tem.frame.common.utils.JWTUtil;
 import com.tem.frame.common.utils.SignUtil;
 import com.tem.frame.common.wrapper.Authority;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.ExpiredObjectListener;
+import org.redisson.api.RSetCache;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -28,8 +31,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 全局请求拦截器
@@ -79,6 +84,9 @@ public class GlobalRequestHandler implements HandlerInterceptor {
      */
     @Autowired
     private JedisClient jedisClient;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
 
     /**
@@ -188,42 +196,37 @@ public class GlobalRequestHandler implements HandlerInterceptor {
 
         try {
             // 参数转为key-value
-            Map<String, Object> paramMap = new HashMap<>();
-
-            // get | delete 请求从url中获取参数
-            if (HttpMethod.GET.name().equals(request.getMethod()) || HttpMethod.DELETE.name().equals(request.getMethod())) {
-                // 请求参数
-                String queryString = request.getQueryString();
-                String[] split = queryString.split("&");
-
-                for (String s : split) {
-                    String[] paramSpilt = s.split("=");
-                    paramMap.put(paramSpilt[0], paramSpilt[1]);
-                }
-            }
-
-            // post | put | patch 请求从body中获取参数
-            if (HttpMethod.POST.name().equals(request.getMethod()) || HttpMethod.PUT.name().equals(request.getMethod()) || HttpMethod.PATCH.name().equals(request.getMethod())) {
-                // body参数转为key-value
-                paramMap = this.getParam(request);
-            }
+            Map<String, Object> paramMap = this.getParam(request);
 
             // 获取客户端时间戳、并校验
-            this.vaildTimetamp(Long.valueOf(String.valueOf(paramMap.get("ts"))));
+            String clientTs = String.valueOf(paramMap.get("ts"));
+            this.vaildTimetamp(Long.valueOf(clientTs));
+            log.info("时间戳校验通过");
 
+            // 后取客户端签名
+            String clientSign = String.valueOf(paramMap.get("sign"));
+            log.info("客户端签名==》【{}】", clientSign);
             // 签名校验
-            String sign = SignUtil.signTopRequest(paramMap, String.valueOf(paramMap.get("salt")));
-            if (!sign.equals(paramMap.get("sign"))) {
+            String serverSign = SignUtil.signTopRequest(paramMap, String.valueOf(paramMap.get("salt")));
+            log.info("服务端签名==》【{}】", serverSign);
+            if (!serverSign.equals(clientSign)) {
                 throw new GlobalException(GlobalExceptionCode.SIGN_FAILED);
             } else {
-                // 从redis中获取签名
-                String redisSign = this.jedisClient.get(sign);
-                // 若存在，则说明重复请求
-                if (StrUtil.isNotBlank(redisSign)) {
+
+                // setCache 存储签名
+                RSetCache<Object> signSet = this.redissonClient.getSetCache(RedisKey.KEY_API_SIGN);
+                signSet.addListener(
+                        (ExpiredObjectListener) name -> {
+                            signSet.remove(serverSign);
+                        }
+                );
+
+                // 从redis中获取签名,若存在，则说明重复请求
+                if (signSet.contains(serverSign)) {
                     throw new GlobalException(GlobalExceptionCode.REPEAT_REQUEST);
                 } else {
                     // 不存在，则把签名缓存到redis，且设置过期时间
-                    this.jedisClient.setex(sign, signtimeout, "sign");
+                    signSet.add(serverSign, signtimeout, TimeUnit.MILLISECONDS);
                 }
             }
 
@@ -244,9 +247,10 @@ public class GlobalRequestHandler implements HandlerInterceptor {
         // 服务端时间戳
         long currentTimeMillis = System.currentTimeMillis();
         // 服务端时间戳 - 客户端时间戳 》= 5分钟有效期
-        System.out.println(currentTimeMillis - timetamp);
-        System.out.println(timetamp - currentTimeMillis);
-        if (currentTimeMillis - timetamp >= this.tstimeout * 1000 || timetamp - currentTimeMillis >= this.tstimeout * 1000) {
+        log.info("服务端时间戳==》【{}】", currentTimeMillis);
+        log.info("客户端时间戳==》【{}】", timetamp);
+        log.info("时间差值==》【{}】", (currentTimeMillis - timetamp) / 1000 + "s");
+        if (currentTimeMillis - timetamp >= this.tstimeout || timetamp - currentTimeMillis >= this.tstimeout) {
             throw new GlobalException(GlobalExceptionCode.ILLEGAL_REQUEST);
         }
     }
@@ -260,16 +264,35 @@ public class GlobalRequestHandler implements HandlerInterceptor {
      * @throws IOException
      */
     public Map<String, Object> getParam(HttpServletRequest request) throws IOException {
+        Map<String, Object> paramMap = new HashMap<>();
 
-        BufferedReader streamReader = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
-        StringBuilder responseStrBuilder = new StringBuilder();
-        String inputStr;
-        while ((inputStr = streamReader.readLine()) != null) {
-            responseStrBuilder.append(inputStr);
+        // get | delete 请求从url中获取参数
+        if (HttpMethod.GET.name().equals(request.getMethod()) || HttpMethod.DELETE.name().equals(request.getMethod())) {
+            // 请求参数
+            String queryString = request.getQueryString();
+            String[] split = queryString.split(StringPool.AMPERSAND);
+
+            //参数转为map结构
+            for (String s : split) {
+                String[] paramSpilt = s.split(StringPool.EQUALS);
+                paramMap.put(paramSpilt[0], paramSpilt.length == 2 ? paramSpilt[1] : "");
+            }
         }
-        Map<String, Object> params = GsonUtil.getObject(responseStrBuilder.toString(), HashMap.class);
 
-        return params;
+        // post | put | patch 请求从body中获取参数
+        if (HttpMethod.POST.name().equals(request.getMethod()) || HttpMethod.PUT.name().equals(request.getMethod()) || HttpMethod.PATCH.name().equals(request.getMethod())) {
+            // body参数转为key-value
+            BufferedReader streamReader = new BufferedReader(new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8));
+            StringBuilder responseStrBuilder = new StringBuilder();
+            String inputStr;
+            while ((inputStr = streamReader.readLine()) != null) {
+                responseStrBuilder.append(inputStr);
+            }
+            paramMap = GsonUtil.getObject(responseStrBuilder.toString(), HashMap.class);
+        }
+
+        return paramMap;
+
     }
 
 }

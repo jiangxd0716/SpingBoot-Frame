@@ -36,9 +36,8 @@ public class RedisKey {
     public static final String KEY_WECHAT_ACCESS_TOKEN = "KEY_WECHAT_ACCESS_TOKEN";
 
     /**
-     * 用户openid
+     * 接口签名key
      */
-    public static final String KEY_WECHAT_OPEN_ID = "KEY_WECHAT_OPED_ID-%S";
-
+    public static final String KEY_API_SIGN = "KEY_API_SIGN";
 
 }

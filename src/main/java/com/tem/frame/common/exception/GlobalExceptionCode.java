@@ -20,9 +20,10 @@ public enum GlobalExceptionCode {
     DATA_IS_NULL(9, "数据是空的"),
     NECESSARY_DATA_IS_NULL(10, "某些必填数据为空"),
 
-    NOT_FOUND(404, "404找不到资源"),
+    METHOD_NOT_SUPPORT(400, "请求类型错误"),
     ILLEGAL_REQUEST(402, "非法请求"),
     SIGN_FAILED(403, "签名校验失败"),
+    NOT_FOUND(404, "404找不到资源"),
     REPEAT_REQUEST(405, "重复请求"),
 
     PHONE_NUMBER_FORMAT_WRONG(1001, "手机号码格式错误"),

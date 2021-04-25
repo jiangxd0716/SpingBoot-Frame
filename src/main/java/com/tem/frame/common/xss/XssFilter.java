@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 @Order(1)
-@WebFilter(filterName="xssFilter", urlPatterns="/*")
+@WebFilter(filterName = "xssFilter", urlPatterns = "/*")
 public class XssFilter implements Filter {
 
     // 是否过滤富文本内容
@@ -46,15 +46,17 @@ public class XssFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
+
         if (handleExcludeURL(req)) {
             chain.doFilter(request, response);
             return;
         }
+
         XssHttpServletRequestWrapper xssRequest = new XssHttpServletRequestWrapper((HttpServletRequest) request, flag);
         chain.doFilter(xssRequest, response);
+
     }
 
     @Override

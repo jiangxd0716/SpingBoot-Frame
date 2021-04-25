@@ -3,7 +3,7 @@ package com.tem.frame.common.utils;
 import cn.hutool.crypto.SecureUtil;
 import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
-import com.tem.frame.common.constants.Constants;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -17,6 +17,7 @@ import java.util.Map;
  *
  * @author jiangxd
  */
+@Slf4j
 public class SignUtil {
 
     /**
@@ -53,7 +54,7 @@ public class SignUtil {
         // 第三步：使用MD5加密
         byte[] bytes;
         strtemp = strtemp + salt;
-        System.out.println(strtemp);
+        log.debug("请求参数==》" + strtemp);
         bytes = encryptMD5(strtemp);
         // 第四步：把二进制转化为大写的十六进制
 //      return new String(bytes,"UTF-8");

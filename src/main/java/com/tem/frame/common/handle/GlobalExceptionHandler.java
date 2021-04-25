@@ -6,6 +6,7 @@ import com.tem.frame.common.wrapper.GlobalResponseWrapper;
 import com.tem.frame.common.wrapper.NotWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -111,14 +112,18 @@ public class GlobalExceptionHandler {
     public GlobalResponseWrapper defaultExceptionHandler(HttpServletRequest request, Exception exception) {
         // 404错误
         if (exception instanceof NoHandlerFoundException) {
-            return new GlobalResponseWrapper(GlobalExceptionCode.NOT_FOUND);
+            return new GlobalResponseWrapper(GlobalExceptionCode.NOT_FOUND).data(exception.getMessage());
+        }
+
+        if (exception instanceof HttpRequestMethodNotSupportedException) {
+            return new GlobalResponseWrapper(GlobalExceptionCode.METHOD_NOT_SUPPORT).data(exception.getMessage());
         }
 
         // 记录异常信息
         log.error("UNKNOWN EXCEPTION:{}", this.getExceptionContent(exception));
 
         // 全部跑出系统异常，不对外暴露异常信息
-        return new GlobalResponseWrapper(GlobalExceptionCode.ERROR);
+        return new GlobalResponseWrapper(GlobalExceptionCode.ERROR).msg(exception.getMessage());
     }
 
     /**
