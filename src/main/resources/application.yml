@@ -16,6 +16,16 @@ mybatis-plus:
       logic-delete-value: 1
       logic-not-delete-value: 0
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+  endpoint:
+    shutdown:
+      enabled: true
+
 #jwt
 jwt:
   key: Authorization
@@ -51,13 +61,11 @@ aliyuncs:
     endpoint-name: cn-hangzhou
     product: Dysmsapi
 
-
-
 security:
   # 是否开启接口授权
   authority: false
   # 是否开启接口签名校验
-  sign: true
+  sign: false
   # 时间戳有效期2分钟 (ms)
   tstimeout: 120000
   # 签名有效期2分钟 (ms)

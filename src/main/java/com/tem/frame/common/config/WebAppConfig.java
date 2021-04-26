@@ -33,7 +33,7 @@ public class WebAppConfig extends WebMvcConfigurationSupport {
         registry
                 .addInterceptor(this.globalRequestHandler)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/login", "/register", "/upload", "/captcha");
+                .excludePathPatterns("/login", "/register", "/upload", "/captcha", "/actuator/**");
     }
 
     /**
