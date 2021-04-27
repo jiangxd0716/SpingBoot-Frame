@@ -10,7 +10,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.tem</groupId>
+    <groupId>com.eu</groupId>
     <artifactId>frame</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>frame</name>

@@ -30,7 +30,7 @@
     </appender>
 
     <!-- 将日志写入数据库 -->
-    <appender name="DB-MYSQL" class="com.tem.frame.common.log.LogBackDBAppender">
+    <appender name="DB-MYSQL" class="com.eu.frame.common.log.LogBackDBAppender">
         <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
             <dataSource class="com.alibaba.druid.pool.DruidDataSource">
                 <driverClassName>${db_drive_class_name}</driverClassName>
